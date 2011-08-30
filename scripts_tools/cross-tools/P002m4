@@ -1,0 +1,39 @@
+#!/bin/bash
+
+. functions_pub
+
+PackageName=m4-1.4.16
+PackageURL=http://ftp.gnu.org/gnu/m4/m4-1.4.16.tar.bz2
+
+
+case "${1}" in
+download)
+	check_and_download $PackageURL
+	;;
+build)
+	#unpack
+        unpack_and_enter $PackageName $PackageURL $(basename $0)
+
+	#configure	
+	./configure --prefix=/cross-tools
+	err_check "[Error] configure $PackageName failed."
+
+	#make
+	$MAKE
+	err_check "[Error] make $PackageName failed."	
+
+	#install
+	make install
+	err_check "[Error] install $PackageName failed."
+
+	#leave directory
+	package_leave $PackageName $PackageURL $(basename $0)
+	;;
+
+*)
+	exit 1
+	;;
+esac
+
+#end 
+

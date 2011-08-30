@@ -1,0 +1,65 @@
+#!/bin/bash
+
+. functions_pub
+
+PackageName=eglibc-2.13
+PackageURL=http://cross-lfs.org/files/packages/git/eglibc-2.13-r13356.tar.bz2
+
+
+case "${1}" in
+download)
+	check_and_download $PackageURL
+	;;
+build)
+	#unpack
+        unpack_and_enter $PackageName $PackageURL $(basename $0)
+
+	#Disable linking to libgcc_eh:
+	cp -v Makeconfig{,.orig}
+	sed -e 's/-lgcc_eh//g' Makeconfig.orig > Makeconfig
+	err_check "[Error] $PackageName sed failed."
+
+	#
+	mkdir -v eglibc-build
+	cd eglibc-build
+
+	#The following lines need to be added to config.cache for EGLIBC to support NPTL:
+	cat > config.cache << "EOF"
+libc_cv_forced_unwind=yes
+libc_cv_c_cleanup=yes
+libc_cv_gnu89_inline=yes
+libc_cv_ssp=no
+EOF
+	#Tell EGLIBC to install its 64-bit libraries into /tools/lib64:
+	echo "slibdir=/tools/lib64" >> configparms
+
+	#configure
+	BUILD_CC="gcc" CC="${CLFS_TARGET}-gcc ${BUILD64}" \
+	AR="${CLFS_TARGET}-ar" RANLIB="${CLFS_TARGET}-ranlib" \
+	../configure --prefix=/tools \
+	    --host=${CLFS_TARGET} --build=${CLFS_HOST} --libdir=/tools/lib64 \
+            --disable-profile --enable-add-ons \
+	    --with-tls --enable-kernel=2.6.0 --with-__thread \
+            --with-binutils=/cross-tools/bin --with-headers=/tools/include \
+	    --cache-file=config.cache
+	err_check "[Error] configure $PackageName failed."
+
+	#make
+	$MAKE
+	err_check "[Error] make $PackageName failed."	
+
+	#install
+	make install
+	err_check "[Error] install $PackageName failed."
+
+	#leave directory
+	package_leave $PackageName $PackageURL $(basename $0)
+	;;
+
+*)
+	exit 1
+	;;
+esac
+
+#end 
+

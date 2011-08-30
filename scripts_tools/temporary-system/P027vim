@@ -1,0 +1,80 @@
+#!/bin/bash
+
+. functions_pub
+
+PackageName=vim73
+PackageURL=ftp://ftp.vim.org/pub/vim/unix/vim-7.3.tar.bz2
+
+case "${1}" in
+download)
+	check_and_download $PackageURL
+	;;
+build)
+	#unpack
+        unpack_and_enter $PackageName $PackageURL $(basename $0)
+
+	#The following patch merges all updates from the 7.3 Branch from the Vim developers:
+	patch -Np1 -i $PATCHES/vim-7.3-branch_update-2.patch
+
+	#The configure script has a single hard coded test that cannot be bypassed with a cache entry. Disable this test with the following command:
+	sed -i "/using uint32_t/s/as_fn_error/#&/" src/auto/configure
+
+	#The configure script is full of logic that aborts at the first sign of cross compiling. Work around this by setting the cached values of several tests with the following command:
+	cat > src/auto/config.cache << "EOF"
+vim_cv_getcwd_broken=no
+vim_cv_memmove_handles_overlap=yes
+vim_cv_stat_ignores_slash=no
+vim_cv_terminfo=yes
+vim_cv_tgent=zero
+vim_cv_toupper_broken=no
+vim_cv_tty_group=world
+ac_cv_sizeof_int=4
+ac_cv_sizeof_long=4
+ac_cv_sizeof_time_t=4
+ac_cv_sizeof_off_t=4
+EOF
+	#Change the default location of the vimrc configuration file to /tools/etc:
+	echo '#define SYS_VIMRC_FILE "/tools/etc/vimrc"' >> src/feature.h
+
+	#configure
+	CC="${CC} ${BUILD64}" CXX="${CXX} ${BUILD64}" \
+	  ./configure --build=${CLFS_HOST} --host=${CLFS_TARGET} \
+	  --prefix=/tools --enable-multibyte --enable-gui=no \
+	  --disable-gtktest --disable-xim --with-features=normal \
+	  --disable-gpm --without-x --disable-netbeans \
+	  --with-tlib=ncurses
+	err_check "[Error] configure $PackageName failed."
+
+	#make
+	$MAKE
+	err_check "[Error] make $PackageName failed."	
+
+	#install
+	make install
+	err_check "[Error] install $PackageName failed."
+	
+	#Many users are accustomed to using vi instead of vim. Some programs, such as vigr and vipw, also use vi. Create a symlink to permit execution of vim when users habitually enter vi and allow programs that use vi to work:
+	ln -sv vim /tools/bin/vi
+
+	#Create a temporary vimrc to make it function more the way you may expect it to. This is explained more in the final system:
+	cat > /tools/etc/vimrc << "EOF"
+" Begin /etc/vimrc
+
+set nocompatible
+set backspace=2
+set ruler
+syntax on
+
+" End /etc/vimrc
+EOF
+	#leave directory.
+	package_leave $PackageName $PackageURL $(basename $0)
+	;;
+
+*)
+	exit 1
+	;;
+esac
+
+#end 
+

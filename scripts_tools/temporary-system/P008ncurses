@@ -1,0 +1,48 @@
+#!/bin/bash
+
+. functions_pub
+
+PackageName=ncurses-5.9
+PackageURL=ftp://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.9.tar.gz
+
+
+case "${1}" in
+download)
+	check_and_download $PackageURL
+	;;
+build)
+	#unpack
+        unpack_and_enter $PackageName $PackageURL $(basename $0)
+
+	#The following patch fixes an issue with some Bash versions:
+	patch -Np1 -i $PATCHES/ncurses-5.9-bash_fix-1.patch
+	err_check "[Error] patch $PackageName failed."
+
+	#configure
+	CC="${CC} ${BUILD64}" CXX="${CXX} ${BUILD64}" \
+	   ./configure --prefix=/tools --with-shared \
+	    --build=${CLFS_HOST} --host=${CLFS_TARGET} \
+	    --without-debug --without-ada \
+	    --enable-overwrite --with-build-cc=gcc \
+            --libdir=/tools/lib64
+	err_check "[Error] configure $PackageName failed."
+
+	#make
+	make
+	err_check "[Error] $PackageName make failed."
+
+	#install
+	make install
+	err_check "[Error] install $PackageName failed."
+
+	#leave directory
+	package_leave $PackageName $PackageURL $(basename $0)
+	;;
+
+*)
+	exit 1
+	;;
+esac
+
+#end 
+

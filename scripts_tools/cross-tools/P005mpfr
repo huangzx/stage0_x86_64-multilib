@@ -1,0 +1,41 @@
+#!/bin/bash
+
+. functions_pub
+
+PackageName=mpfr-3.0.1
+PackageURL=http://www.mpfr.org/mpfr-current/mpfr-3.0.1.tar.bz2
+
+
+case "${1}" in
+download)
+	check_and_download $PackageURL
+	;;
+build)
+	#unpack
+        unpack_and_enter $PackageName $PackageURL $(basename $0)
+
+	#configure	
+	LDFLAGS="-Wl,-rpath,/cross-tools/lib" \
+	./configure --prefix=/cross-tools \
+	    --enable-shared --with-gmp=/cross-tools
+	err_check "[Error] configure $PackageName failed."
+
+	#make
+	$MAKE
+	err_check "[Error] make $PackageName failed."	
+
+	#install
+	make install
+	err_check "[Error] install $PackageName failed."
+
+	#leave directory
+	package_leave $PackageName $PackageURL $(basename $0)
+	;;
+
+*)
+	exit 1
+	;;
+esac
+
+#end 
+

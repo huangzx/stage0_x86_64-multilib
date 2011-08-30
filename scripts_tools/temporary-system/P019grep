@@ -1,0 +1,46 @@
+#!/bin/bash
+
+. functions_pub
+
+PackageName=grep-2.8
+PackageURL=http://ftp.gnu.org/gnu/grep/grep-2.8.tar.gz
+
+case "${1}" in
+download)
+	check_and_download $PackageURL
+	;;
+build)
+	#unpack
+        unpack_and_enter $PackageName $PackageURL $(basename $0)
+
+	#When Cross Compiling the configure script does not determine the correct values for the following, Set the values manually:
+	cat > config.cache << EOF
+ac_cv_func_malloc_0_nonnull=yes
+ac_cv_func_realloc_0_nonnull=yes
+EOF
+	#configure
+	CC="${CC} ${BUILD64}" ./configure --prefix=/tools \
+	    --build=${CLFS_HOST} --host=${CLFS_TARGET} \
+	    --disable-perl-regexp --without-included-regex \
+	    --cache-file=config.cache
+	err_check "[Error] configure $PackageName failed."
+
+	#make
+	$MAKE
+	err_check "[Error] make $PackageName failed."	
+
+	#install
+	make install
+	err_check "[Error] install $PackageName failed."
+
+	#leave directory.
+	package_leave $PackageName $PackageURL $(basename $0)
+	;;
+
+*)
+	exit 1
+	;;
+esac
+
+#end 
+

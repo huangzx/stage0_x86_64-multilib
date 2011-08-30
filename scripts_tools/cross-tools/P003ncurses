@@ -1,0 +1,46 @@
+#!/bin/bash
+
+. functions_pub
+
+PackageName=ncurses-5.9
+PackageURL=ftp://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.9.tar.gz
+
+
+case "${1}" in
+download)
+	check_and_download $PackageURL
+	;;
+build)
+	#unpack
+        unpack_and_enter $PackageName $PackageURL $(basename $0)
+
+	#The following patch fixes an issue with some Bash versions:
+	patch -Np1 -i $PATCHES/ncurses-5.9-bash_fix-1.patch
+	err_check "[Error] patch $PackageName failed."
+
+	#configure	
+	./configure --prefix=/cross-tools \
+	    --without-debug --without-shared
+	err_check "[Error] configure $PackageName failed."
+
+	#Only one binary is needed for the Cross-Tools. Build the headers and then build tic:
+	make -C include
+	err_check "[Error] make $PackageName failed."	
+	make -C progs tic
+	err_check "[Error] make $PackageName failed."	
+
+	#install
+	install -v -m755 progs/tic /cross-tools/bin
+	err_check "[Error] install $PackageName failed."
+
+	#leave directory
+	package_leave $PackageName $PackageURL $(basename $0)
+	;;
+
+*)
+	exit 1
+	;;
+esac
+
+#end 
+

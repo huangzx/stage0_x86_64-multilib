@@ -1,0 +1,91 @@
+#!/bin/bash
+
+#public functions
+. functions_pub
+
+
+#
+# prepare.
+#
+
+
+echo "setting up environment..."
+
+#setup environment.
+set +h
+umask 022
+CLFS=${LFS}  #/media/clfs
+LC_ALL=POSIX
+PATH=/cross-tools/bin:/bin:/usr/bin
+export CLFS LC_ALL PATH
+
+echo PATH=$PATH user=$USER
+
+#setup cross compile build variables
+unset CFLAGS
+unset CXXFLAGS
+export CLFS_HOST=$(echo ${MACHTYPE} | sed -e 's/-[^-]*/-cross/')
+export CLFS_TARGET="x86_64-unknown-linux-gnu"
+export CLFS_TARGET32="i686-pc-linux-gnu"
+export BUILD32="-m32"
+export BUILD64="-m64"
+
+
+#cross-tools packages.
+get_packages  ${SCRIPTS_BASE}/scripts_tools/cross-tools
+allpacks=$ret
+unset ret
+get_string_count $allpacks
+count=$ret
+unset ret
+i=1
+for dlpack in $allpacks; do
+	printf "[%d/%d] build %s... \n" $i $count `basename $dlpack`
+	bash $dlpack build
+	if [ "$?" != 0 ]; then
+		printf "*** build %s failed.\n" `basename $dlpack`
+		exit 1
+	fi
+	i=$(($i+1))
+done
+
+#temporary-system packages.
+export CC="${CLFS_TARGET}-gcc"
+export CXX="${CLFS_TARGET}-g++"
+export AR="${CLFS_TARGET}-ar"
+export AS="${CLFS_TARGET}-as"
+export RANLIB="${CLFS_TARGET}-ranlib"
+export LD="${CLFS_TARGET}-ld"
+export STRIP="${CLFS_TARGET}-strip"
+
+get_packages  ${SCRIPTS_BASE}/scripts_tools/temporary-system
+allpacks=$ret
+unset ret
+get_string_count $allpacks
+count=$ret
+unset ret
+i=1
+for dlpack in $allpacks; do
+	printf "[%d/%d] build %s... \n" $i $count `basename $dlpack`
+	bash $dlpack build
+	if [ "$?" != 0 ]; then
+		printf "*** build %s failed.\n" `basename $dlpack`
+		exit 1
+	fi
+	i=$(($i+1))
+done
+
+
+#stipping debug sections.
+echo "Stripping..."
+strip --strip-debug /{tools,cross-tools}/lib/*        2>/dev/null
+strip --strip-unneeded /{tools,cross-tools}/{,s}bin/* 2>/dev/null
+rm -rf /{tools,cross-tools}/{info,man}                2>/dev/null
+
+#add done sign.
+add_tools_done_sign
+
+printf "[***] build done, packages=%d\n", $(($i-1))
+exit 0
+
+#end of script

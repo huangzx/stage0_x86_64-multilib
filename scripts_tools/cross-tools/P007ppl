@@ -1,0 +1,44 @@
+#!/bin/bash
+
+. functions_pub
+
+PackageName=ppl-0.11.2
+PackageURL=http://www.cs.unipr.it/ppl/Download/ftp/releases/0.11.2/ppl-0.11.2.tar.bz2
+
+
+case "${1}" in
+download)
+	check_and_download $PackageURL
+	;;
+build)
+	#unpack
+        unpack_and_enter $PackageName $PackageURL $(basename $0)
+
+	#configure	
+	CPPFLAGS="-I/cross-tools/include" \
+	LDFLAGS="-Wl,-rpath,/cross-tools/lib" \
+	./configure --prefix=/cross-tools --enable-shared \
+		--enable-interfaces="c,cxx" --disable-optimization \
+	        --with-libgmp-prefix=/cross-tools \
+	        --with-libgmpxx-prefix=/cross-tools
+	err_check "[Error] configure $PackageName failed."
+
+	#make
+	$MAKE
+	err_check "[Error] make $PackageName failed."	
+
+	#install
+	make install
+	err_check "[Error] install $PackageName failed."
+
+	#leave directory.
+	package_leave $PackageName $PackageURL $(basename $0)
+	;;
+
+*)
+	exit 1
+	;;
+esac
+
+#end 
+

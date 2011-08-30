@@ -1,0 +1,48 @@
+#!/bin/bash
+
+. functions_pub
+
+PackageName=flex-2.5.35
+PackageURL=http://downloads.sourceforge.net/flex/flex-2.5.35.tar.bz2
+
+case "${1}" in
+download)
+	check_and_download $PackageURL
+	;;
+build)
+	#unpack
+        unpack_and_enter $PackageName $PackageURL $(basename $0)
+
+	#The following patch contains fixes to Generate proper GCC 4.4.x code:
+	patch -Np1 -i $PATCHES/flex-2.5.35-gcc44-1.patch
+
+	#When Cross Compiling the configure script does not determine the correct values for the following, Set the values manually:
+	cat > config.cache << EOF
+ac_cv_func_malloc_0_nonnull=yes
+ac_cv_func_realloc_0_nonnull=yes
+EOF
+	#configure
+	CC="${CC} ${BUILD64}" ./configure --prefix=/tools \
+	    --build=${CLFS_HOST} --host=${CLFS_TARGET} \
+	    --cache-file=config.cache
+	err_check "[Error] configure $PackageName failed."
+
+	#make
+	$MAKE
+	err_check "[Error] make $PackageName failed."	
+
+	#install
+	make install
+	err_check "[Error] install $PackageName failed."
+
+	#leave directory.
+	package_leave $PackageName $PackageURL $(basename $0)
+	;;
+
+*)
+	exit 1
+	;;
+esac
+
+#end 
+

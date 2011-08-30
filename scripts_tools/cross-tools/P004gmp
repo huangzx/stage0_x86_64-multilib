@@ -1,0 +1,40 @@
+#!/bin/bash
+
+. functions_pub
+
+PackageName=gmp-5.0.2
+PackageURL=http://ftp.gnu.org/gnu/gmp/gmp-5.0.2.tar.bz2
+
+
+case "${1}" in
+download)
+	check_and_download $PackageURL
+	;;
+build)
+	#unpack
+        unpack_and_enter $PackageName $PackageURL $(basename $0)
+
+	#configure	
+	CPPFLAGS=-fexceptions ./configure \
+	    --prefix=/cross-tools --enable-cxx
+	err_check "[Error] configure $PackageName failed."
+
+	#make
+	$MAKE
+	err_check "[Error] make $PackageName failed."	
+
+	#install
+	make install
+	err_check "[Error] install $PackageName failed."
+
+	#leave directory.
+	package_leave $PackageName $PackageURL $(basename $0)
+	;;
+
+*)
+	exit 1
+	;;
+esac
+
+#end 
+
