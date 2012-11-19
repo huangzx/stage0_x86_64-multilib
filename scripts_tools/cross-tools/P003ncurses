@@ -5,7 +5,6 @@
 PackageName=ncurses-5.9
 PackageURL=ftp://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.9.tar.gz
 
-
 case "${1}" in
 download)
 	check_and_download $PackageURL
@@ -19,8 +18,7 @@ build)
 	err_check "[Error] patch $PackageName failed."
 
 	#configure	
-	./configure --prefix=/cross-tools \
-	    --without-debug --without-shared
+	./configure --prefix=/cross-tools --without-debug --without-shared
 	err_check "[Error] configure $PackageName failed."
 
 	#Only one binary is needed for the Cross-Tools. Build the headers and then build tic:

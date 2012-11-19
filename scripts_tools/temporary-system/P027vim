@@ -3,7 +3,7 @@
 . functions_pub
 
 PackageName=vim73
-PackageURL=ftp://ftp.vim.org/pub/vim/unix/vim-7.3.tar.bz2
+PackageURL=http://mirror.bjtu.edu.cn/clfs/clfs-packages/git/vim-7.3.tar.bz2
 
 case "${1}" in
 download)
@@ -14,10 +14,11 @@ build)
         unpack_and_enter $PackageName $PackageURL $(basename $0)
 
 	#The following patch merges all updates from the 7.3 Branch from the Vim developers:
-	patch -Np1 -i $PATCHES/vim-7.3-branch_update-2.patch
+	patch -Np1 -i $PATCHES/vim-7.3-branch_update-6.patch
 
 	#The configure script has a single hard coded test that cannot be bypassed with a cache entry. Disable this test with the following command:
-	sed -i "/using uint32_t/s/as_fn_error/#&/" src/auto/configure
+	cp -v src/auto/configure{,.orig}
+	sed "/using uint32_t/s/as_fn_error/#&/" src/auto/configure.orig > src/auto/configure
 
 	#The configure script is full of logic that aborts at the first sign of cross compiling. Work around this by setting the cached values of several tests with the following command:
 	cat > src/auto/config.cache << "EOF"
@@ -42,7 +43,7 @@ EOF
 	  --prefix=/tools --enable-multibyte --enable-gui=no \
 	  --disable-gtktest --disable-xim --with-features=normal \
 	  --disable-gpm --without-x --disable-netbeans \
-	  --with-tlib=ncurses
+	  --with-tlib=ncurses	
 	err_check "[Error] configure $PackageName failed."
 
 	#make

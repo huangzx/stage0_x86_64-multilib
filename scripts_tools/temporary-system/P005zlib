@@ -2,9 +2,8 @@
 
 . functions_pub
 
-PackageName=zlib-1.2.5
-PackageURL=http://nchc.dl.sourceforge.net/project/libpng/zlib/1.2.5/zlib-1.2.5.tar.bz2
-
+PackageName=zlib-1.2.7
+PackageURL=http://zlib.net/zlib-1.2.7.tar.bz2
 
 case "${1}" in
 download)
@@ -16,7 +15,7 @@ build)
 
 	#configure
 	CC="${CC} ${BUILD64}" \
-	   ./configure --prefix=/tools --libdir=/tools/lib64
+ 	./configure --prefix=/tools --libdir=/tools/lib64
 	err_check "[Error] configure $PackageName failed."
 
 	#make

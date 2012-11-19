@@ -2,8 +2,8 @@
 
 . functions_pub
 
-PackageName=linux-2.6.39
-PackageURL=http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.39.tar.bz2
+PackageName=linux-3.4.17
+PackageURL=http://www.kernel.org/pub/linux/kernel/v3.0/linux-3.4.17.tar.xz
 
 case "${1}" in
 download)

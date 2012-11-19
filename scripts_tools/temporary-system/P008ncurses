@@ -5,7 +5,6 @@
 PackageName=ncurses-5.9
 PackageURL=ftp://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.9.tar.gz
 
-
 case "${1}" in
 download)
 	check_and_download $PackageURL
@@ -21,14 +20,14 @@ build)
 	#configure
 	CC="${CC} ${BUILD64}" CXX="${CXX} ${BUILD64}" \
 	   ./configure --prefix=/tools --with-shared \
-	    --build=${CLFS_HOST} --host=${CLFS_TARGET} \
-	    --without-debug --without-ada \
-	    --enable-overwrite --with-build-cc=gcc \
-            --libdir=/tools/lib64
+	   --build=${CLFS_HOST} --host=${CLFS_TARGET} \
+	   --without-debug --without-ada \
+	   --enable-overwrite --with-build-cc=gcc \
+	   --libdir=/tools/lib64
 	err_check "[Error] configure $PackageName failed."
 
 	#make
-	make
+	$MAKE
 	err_check "[Error] $PackageName make failed."
 
 	#install

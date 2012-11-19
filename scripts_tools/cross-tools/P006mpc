@@ -2,9 +2,8 @@
 
 . functions_pub
 
-PackageName=mpc-0.9
-PackageURL=http://www.multiprecision.org/mpc/download/mpc-0.9.tar.gz
-
+PackageName=mpc-1.0.1
+PackageURL=http://www.multiprecision.org/mpc/download/mpc-1.0.1.tar.gz
 
 case "${1}" in
 download)
@@ -16,9 +15,7 @@ build)
 
 	#configure	
 	LDFLAGS="-Wl,-rpath,/cross-tools/lib" \
-	./configure --prefix=/cross-tools \
-	    --with-gmp=/cross-tools \
-	    --with-mpfr=/cross-tools
+	./configure --prefix=/cross-tools --with-gmp=/cross-tools --with-mpfr=/cross-tools --disable-static
 	err_check "[Error] configure $PackageName failed."
 
 	#make

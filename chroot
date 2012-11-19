@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+
+#include functions.
+. functions_pub
+
+#check privilidge.
+if [ $UID != 0 ]; then
+	echo "Please run with root privilidge."
+	exit 1
+fi
+
+#setup chroot for build base system
+setup_chroot
+

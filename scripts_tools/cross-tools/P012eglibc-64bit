@@ -2,9 +2,8 @@
 
 . functions_pub
 
-PackageName=eglibc-2.13
-PackageURL=http://cross-lfs.org/files/packages/git/eglibc-2.13-r13356.tar.bz2
-
+PackageName=eglibc-2.15
+PackageURL=http://cross-lfs.org/files/eglibc-2.15-r21467.tar.xz
 
 case "${1}" in
 download)
@@ -35,22 +34,28 @@ EOF
 
 	#configure
 	BUILD_CC="gcc" CC="${CLFS_TARGET}-gcc ${BUILD64}" \
-	AR="${CLFS_TARGET}-ar" RANLIB="${CLFS_TARGET}-ranlib" \
-	../configure --prefix=/tools \
+	    AR="${CLFS_TARGET}-ar" RANLIB="${CLFS_TARGET}-ranlib" \
+	    ../configure --prefix=/tools \
 	    --host=${CLFS_TARGET} --build=${CLFS_HOST} --libdir=/tools/lib64 \
-            --disable-profile --enable-add-ons \
-	    --with-tls --enable-kernel=2.6.0 --with-__thread \
-            --with-binutils=/cross-tools/bin --with-headers=/tools/include \
+	    --disable-profile --enable-add-ons \
+	    --with-tls --enable-kernel=2.6.32 --with-__thread \
+	    --with-binutils=/cross-tools/bin --with-headers=/tools/include \
 	    --cache-file=config.cache
 	err_check "[Error] configure $PackageName failed."
 
 	#make
 	$MAKE
+	$MAKE
 	err_check "[Error] make $PackageName failed."	
 
 	#install
-	make install
+	make install inst_vardbdir=/tools/var/db
 	err_check "[Error] install $PackageName failed."
+
+	#Install NIS and RPC related headers that are not installed by default.
+	cp -v ../sunrpc/rpc/*.h /tools/include/rpc
+	cp -v ../sunrpc/rpcsvc/*.h /tools/include/rpcsvc
+	cp -v ../nis/rpcsvc/*.h /tools/include/rpcsvc
 
 	#leave directory
 	package_leave $PackageName $PackageURL $(basename $0)

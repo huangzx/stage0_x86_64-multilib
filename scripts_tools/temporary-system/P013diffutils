@@ -2,8 +2,8 @@
 
 . functions_pub
 
-PackageName=diffutils-3.0
-PackageURL=http://ftp.gnu.org/gnu/diffutils/diffutils-3.0.tar.gz
+PackageName=diffutils-3.2
+PackageURL=http://ftp.gnu.org/gnu/diffutils/diffutils-3.2.tar.xz
 
 case "${1}" in
 download)

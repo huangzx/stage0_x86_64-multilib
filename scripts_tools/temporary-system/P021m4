@@ -5,7 +5,6 @@
 PackageName=m4-1.4.16
 PackageURL=http://ftp.gnu.org/gnu/m4/m4-1.4.16.tar.bz2
 
-
 case "${1}" in
 download)
 	check_and_download $PackageURL

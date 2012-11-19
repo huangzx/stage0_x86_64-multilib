@@ -2,9 +2,8 @@
 
 . functions_pub
 
-PackageName=binutils-2.21.1
-PackageURL=http://ftp.gnu.org/gnu/binutils/binutils-2.21.1a.tar.bz2
-
+PackageName=binutils-2.23
+PackageURL=http://ftp.gnu.org/gnu/binutils/binutils-2.23.tar.gz
 
 case "${1}" in
 download)
@@ -19,10 +18,11 @@ build)
 	cd binutils-build
 	
 	#configure
-	AR=ar AS=as ../configure \
-	  --prefix=/cross-tools --host=${CLFS_HOST} --target=${CLFS_TARGET} \
-	  --with-sysroot=${CLFS} --with-lib-path=/tools/lib --disable-nls --enable-shared \
-	  --enable-64-bit-bfd
+	AR=ar AS=as \
+        ../configure \
+	   --prefix=/cross-tools --host=${CLFS_HOST} --target=${CLFS_TARGET} \
+	   --with-sysroot=${CLFS} --with-lib-path=/tools/lib --disable-nls --enable-shared \
+	   --enable-64-bit-bfd --disable-static
 	err_check "[Error] configure $PackageName failed."
 
 	#make

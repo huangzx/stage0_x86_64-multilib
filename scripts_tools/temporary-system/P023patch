@@ -2,8 +2,8 @@
 
 . functions_pub
 
-PackageName=patch-2.6.1
-PackageURL=http://ftp.gnu.org/gnu/patch/patch-2.6.1.tar.bz2
+PackageName=patch-2.7.1
+PackageURL=http://ftp.gnu.org/gnu/patch/patch-2.7.1.tar.xz
 
 case "${1}" in
 download)
@@ -19,7 +19,7 @@ build)
 	#configure
 	CC="${CC} ${BUILD64}" ./configure --prefix=/tools \
 	    --build=${CLFS_HOST} --host=${CLFS_TARGET} \
-	    --cache-file=config.cache
+    	    --cache-file=config.cache
 	err_check "[Error] configure $PackageName failed."
 
 	#make

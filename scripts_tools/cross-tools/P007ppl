@@ -2,9 +2,8 @@
 
 . functions_pub
 
-PackageName=ppl-0.11.2
-PackageURL=http://www.cs.unipr.it/ppl/Download/ftp/releases/0.11.2/ppl-0.11.2.tar.bz2
-
+PackageName=ppl-0.12.1
+PackageURL=http://mirror.bjtu.edu.cn/clfs/clfs-packages/git/ppl-0.12.1.tar.bz2
 
 case "${1}" in
 download)
@@ -17,10 +16,9 @@ build)
 	#configure	
 	CPPFLAGS="-I/cross-tools/include" \
 	LDFLAGS="-Wl,-rpath,/cross-tools/lib" \
-	./configure --prefix=/cross-tools --enable-shared \
-		--enable-interfaces="c,cxx" --disable-optimization \
-	        --with-libgmp-prefix=/cross-tools \
-	        --with-libgmpxx-prefix=/cross-tools
+	./configure --prefix=/cross-tools --enable-shared --disable-static \
+    	            --enable-interfaces="c,cxx" --disable-optimization \
+	            --with-gmp=/cross-tools
 	err_check "[Error] configure $PackageName failed."
 
 	#make

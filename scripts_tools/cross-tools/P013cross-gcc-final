@@ -2,9 +2,8 @@
 
 . functions_pub
 
-PackageName=gcc-4.6.0
-PackageURL=ftp://gcc.gnu.org/pub/gcc/releases/gcc-4.6.0/gcc-4.6.0.tar.bz2
-
+PackageName=gcc-4.6.3
+PackageURL=ftp://gcc.gnu.org/pub/gcc/releases/gcc-4.6.3/gcc-4.6.3.tar.bz2
 
 case "${1}" in
 download)
@@ -13,20 +12,20 @@ download)
 build)
         unpack_and_enter $PackageName $PackageURL $(basename $0)
 
-	#The following patch contains a number of updates to the 4.6.0 branch by the GCC developers:
-	patch -Np1 -i $PATCHES/gcc-4.6.0-branch_update-1.patch
+	#The following patch contains a number of updates to the 4.6.3 branch by the GCC developers:
+	patch -Np1 -i $PATCHES/gcc-4.6.3-branch_update-1.patch
 	#Make a couple of essential adjustments to the specs file to ensure GCC uses our build environment:
-	patch -Np1 -i $PATCHES/gcc-4.6.0-specs-1.patch
+	patch -Np1 -i $PATCHES/gcc-4.6.3-specs-1.patch
 
 	#Change the StartFile Spec and Standard Include Dir so that GCC looks in /tools:
 	echo -en '#undef STANDARD_INCLUDE_DIR\n#define STANDARD_INCLUDE_DIR "/tools/include/"\n\n' >> gcc/config/linux.h
-	echo -en '\n#undef STANDARD_STARTFILE_PREFIX_1\n#define STANDARD_STARTFILE_PREFIX_1 "/tools/lib/"\n' >> gcc/config/linux.h
-	echo -en '\n#undef STANDARD_STARTFILE_PREFIX_2\n#define STANDARD_STARTFILE_PREFIX_2 ""\n' >> gcc/config/linux.h
+echo -en '\n#undef STANDARD_STARTFILE_PREFIX_1\n#define STANDARD_STARTFILE_PREFIX_1 "/tools/lib/"\n' >> gcc/config/linux.h
+echo -en '\n#undef STANDARD_STARTFILE_PREFIX_2\n#define STANDARD_STARTFILE_PREFIX_2 ""\n' >> gcc/config/linux.h
 
 	#Now alter gcc's c preprocessor's default include search path to use /tools only:
 	cp -v gcc/Makefile.in{,.orig}
 	sed -e "s@\(^CROSS_SYSTEM_HEADER_DIR =\).*@\1 /tools/include@g" \
-	    gcc/Makefile.in.orig > gcc/Makefile.in
+    gcc/Makefile.in.orig > gcc/Makefile.in	
 
 	#The GCC documentation recommends building GCC outside of the source directory in a dedicated build directory:
 	mkdir -v gcc-build
@@ -34,17 +33,18 @@ build)
 
 	#configure
 	AR=ar LDFLAGS="-Wl,-rpath,/cross-tools/lib" \
-	../configure --prefix=/cross-tools \
-	    --build=${CLFS_HOST} --target=${CLFS_TARGET} --host=${CLFS_HOST} \
-	    --with-sysroot=${CLFS} --with-local-prefix=/tools --disable-nls \
-	    --enable-shared --enable-languages=c,c++ --enable-__cxa_atexit \
-	    --with-mpfr=/cross-tools --with-gmp=/cross-tools --enable-c99 \
-	    --with-ppl=/cross-tools --with-cloog=/cross-tools \
+	  ../configure --prefix=/cross-tools \
+	  --build=${CLFS_HOST} --target=${CLFS_TARGET} --host=${CLFS_HOST} \
+	  --with-sysroot=${CLFS} --with-local-prefix=/tools --disable-nls \
+	  --enable-shared --disable-static --enable-languages=c,c++ \
+	  --enable-__cxa_atexit --with-mpfr=/cross-tools --with-gmp=/cross-tools \
+	  --enable-c99 --with-ppl=/cross-tools --with-cloog=/cross-tools \
+  	  --enable-long-long --enable-threads=posix --enable-cloog-backend=isl
 	err_check "[Error] configure $PackageName failed."
 
 	#make
 	make AS_FOR_TARGET="${CLFS_TARGET}-as" \
-	    LD_FOR_TARGET="${CLFS_TARGET}-ld"
+	     LD_FOR_TARGET="${CLFS_TARGET}-ld"
 	err_check "[Error] make $PackageName failed."	
 
 	#install.

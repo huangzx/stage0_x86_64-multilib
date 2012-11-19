@@ -36,22 +36,12 @@ for i in tools cross-tools; do
 	fi
 done
 
-#check if tools build OK.
-check_tools_done_sign
-if [ "$?" == 0 ]; then
-	#tools done, build blfs.
-	#build_lfs_blfs
-	exit
-fi
-
-
 #check user lfs.
 su lfs -m -c ls >/dev/null 2>&1
 if [ "$?" != 0 ]; then
 	echo "create user lfs.."
 	useradd -s /bin/bash lfs
 fi
-
 
 #change owner of /tools to lfs.
 echo "checking owner of /tools /cross_tools .."
@@ -67,8 +57,7 @@ done
 su lfs -m -c "bash scripts_tools/build"
 err_check "build tools failed."
 
-#build lfs
-#build_lfs_blfs
-
+#build cross-tools and temporatry-system
+bash scripts_tools/build
 
 #end script.

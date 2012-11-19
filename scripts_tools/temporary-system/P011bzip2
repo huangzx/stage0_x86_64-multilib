@@ -5,7 +5,6 @@
 PackageName=bzip2-1.0.6
 PackageURL=http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
 
-
 case "${1}" in
 download)
 	check_and_download $PackageURL
@@ -20,7 +19,7 @@ build)
 	    -e 's@/lib\(/\| \|$\)@/lib64\1@g' Makefile.orig > Makefile
 
 	#The Bzip2 package does not contain a configure script. Compile it with:
-	make CC="${CC} ${BUILD64}" AR="${AR}" RANLIB="${RANLIB}"
+	$MAKE CC="${CC} ${BUILD64}" AR="${AR}" RANLIB="${RANLIB}"
 	err_check "[Error] make $PackageName failed."	
 
 	#install

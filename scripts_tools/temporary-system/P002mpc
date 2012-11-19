@@ -2,9 +2,8 @@
 
 . functions_pub
 
-PackageName=mpc-0.9
-PackageURL=http://www.multiprecision.org/mpc/download/mpc-0.9.tar.gz
-
+PackageName=mpc-1.0.1
+PackageURL=http://www.multiprecision.org/mpc/download/mpc-1.0.1.tar.gz
 
 case "${1}" in
 download)
@@ -15,10 +14,10 @@ build)
         unpack_and_enter $PackageName $PackageURL $(basename $0)
 
 	#configure
-	CC="${CC} ${BUILD64}" EGREP="grep -E" \
-	  ./configure --prefix=/tools \
-	  	--build=${CLFS_HOST} --host=${CLFS_TARGET} \
-		--libdir=/tools/lib64
+	CC="${CC} ${BUILD64}" \
+        ./configure --prefix=/tools \
+        --build=${CLFS_HOST} --host=${CLFS_TARGET} \
+        --libdir=/tools/lib64
 	err_check "[Error] configure $PackageName failed."
 
 	#make

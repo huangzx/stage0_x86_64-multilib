@@ -2,8 +2,8 @@
 
 . functions_pub
 
-PackageName=gzip-1.4
-PackageURL=http://ftp.gnu.org/gnu/gzip/gzip-1.4.tar.gz
+PackageName=gzip-1.5
+PackageURL=http://ftp.gnu.org/gnu/gzip/gzip-1.5.tar.xz
 
 case "${1}" in
 download)

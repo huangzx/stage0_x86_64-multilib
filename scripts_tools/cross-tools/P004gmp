@@ -2,9 +2,8 @@
 
 . functions_pub
 
-PackageName=gmp-5.0.2
-PackageURL=http://ftp.gnu.org/gnu/gmp/gmp-5.0.2.tar.bz2
-
+PackageName=gmp-5.0.5
+PackageURL=http://ftp.gnu.org/gnu/gmp/gmp-5.0.5.tar.bz2
 
 case "${1}" in
 download)
@@ -15,8 +14,7 @@ build)
         unpack_and_enter $PackageName $PackageURL $(basename $0)
 
 	#configure	
-	CPPFLAGS=-fexceptions ./configure \
-	    --prefix=/cross-tools --enable-cxx
+	CPPFLAGS=-fexceptions ./configure --prefix=/cross-tools --enable-cxx --disable-static
 	err_check "[Error] configure $PackageName failed."
 
 	#make

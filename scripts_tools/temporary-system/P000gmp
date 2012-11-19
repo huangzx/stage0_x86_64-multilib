@@ -2,9 +2,8 @@
 
 . functions_pub
 
-PackageName=gmp-5.0.2
-PackageURL=http://ftp.gnu.org/gnu/gmp/gmp-5.0.2.tar.bz2
-
+PackageName=gmp-5.0.5
+PackageURL=http://ftp.gnu.org/gnu/gmp/gmp-5.0.5.tar.bz2
 
 case "${1}" in
 download)
@@ -16,9 +15,9 @@ build)
 
 	#configure	
 	HOST_CC=gcc CPPFLAGS=-fexceptions CC="${CC} \
-	    ${BUILD64}" CXX="${CXX} ${BUILD64}" ./configure --prefix=/tools \
-	    --build=${CLFS_HOST} --host=${CLFS_TARGET} \
-	    --libdir=/tools/lib64 --enable-cxx
+        ${BUILD64}" CXX="${CXX} ${BUILD64}" ./configure --prefix=/tools \
+        --build=${CLFS_HOST} --host=${CLFS_TARGET} \
+        --libdir=/tools/lib64 --enable-cxx
 	err_check "[Error] configure $PackageName failed."
 
 	#make

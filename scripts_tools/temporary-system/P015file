@@ -2,8 +2,8 @@
 
 . functions_pub
 
-PackageName=file-5.07
-PackageURL=ftp://ftp.astron.com/pub/file/file-5.07.tar.gz
+PackageName=file-5.11
+PackageURL=ftp://ftp.astron.com/pub/file/file-5.11.tar.gz
 
 case "${1}" in
 download)

@@ -5,7 +5,6 @@
 PackageName=m4-1.4.16
 PackageURL=http://ftp.gnu.org/gnu/m4/m4-1.4.16.tar.bz2
 
-
 case "${1}" in
 download)
 	check_and_download $PackageURL
@@ -13,6 +12,10 @@ download)
 build)
 	#unpack
         unpack_and_enter $PackageName $PackageURL $(basename $0)
+
+	#patch contains a fix when building with a host having glibc or eglibc 2.16 or later.
+	patch -Np1 -i $PATCHES/m4-1.4.16-no-gets-1.patch	
+	err_check "[Error] patch $PackageName failed."
 
 	#configure	
 	./configure --prefix=/cross-tools

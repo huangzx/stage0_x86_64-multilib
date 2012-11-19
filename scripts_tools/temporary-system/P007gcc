@@ -2,9 +2,8 @@
 
 . functions_pub
 
-PackageName=gcc-4.6.0
-PackageURL=ftp://gcc.gnu.org/pub/gcc/releases/gcc-4.6.0/gcc-4.6.0.tar.bz2
-
+PackageName=gcc-4.6.3
+PackageURL=ftp://gcc.gnu.org/pub/gcc/releases/gcc-4.6.3/gcc-4.6.3.tar.bz2
 
 case "${1}" in
 download)
@@ -14,18 +13,18 @@ build)
 	#unpack
         unpack_and_enter $PackageName $PackageURL $(basename $0)
 
-	#The following patch contains a number of updates to the 4.6.0 branch by the GCC developers:
-	patch -Np1 -i $PATCHES/gcc-4.6.0-branch_update-1.patch
+	#The following patch contains a number of updates to the 4.6.3 branch by the GCC developers:
+	patch -Np1 -i $PATCHES/gcc-4.6.3-branch_update-1.patch
 	err_check "[Error] patch $PackageName failed."
 
 	#Make a couple of essential adjustments to the specs file to ensure GCC uses our build environment:
-	patch -Np1 -i $PATCHES/gcc-4.6.0-specs-1.patch
+	patch -Np1 -i $PATCHES/gcc-4.6.3-specs-1.patch
 	err_check "[Error] patch $PackageName failed."
 
 	#Change the StartFile Spec and Standard Include Dir so that GCC looks in /tools:
 	echo -en '#undef STANDARD_INCLUDE_DIR\n#define STANDARD_INCLUDE_DIR "/tools/include/"\n\n' >> gcc/config/linux.h
-	echo -en '\n#undef STANDARD_STARTFILE_PREFIX_1\n#define STANDARD_STARTFILE_PREFIX_1 "/tools/lib/"\n' >> gcc/config/linux.h
-	echo -en '\n#undef STANDARD_STARTFILE_PREFIX_2\n#define STANDARD_STARTFILE_PREFIX_2 ""\n' >> gcc/config/linux.h
+echo -en '\n#undef STANDARD_STARTFILE_PREFIX_1\n#define STANDARD_STARTFILE_PREFIX_1 "/tools/lib/"\n' >> gcc/config/linux.h
+echo -en '\n#undef STANDARD_STARTFILE_PREFIX_2\n#define STANDARD_STARTFILE_PREFIX_2 ""\n' >> gcc/config/linux.h	
 
 	#Also, we need to set the directory searched by the fixincludes process for system headers, so it won't look at the host's headers:
 	cp -v gcc/Makefile.in{,.orig}
@@ -36,24 +35,23 @@ build)
 	#configure
 	mkdir -v gcc-build
 	cd gcc-build
-
+	
 	CC="${CC} ${BUILD64}" CXX="${CXX} ${BUILD64}" \
 	  ../configure --prefix=/tools \
 	  --libdir=/tools/lib64 --build=${CLFS_HOST} --host=${CLFS_TARGET} \
 	  --target=${CLFS_TARGET} --with-local-prefix=/tools  --enable-long-long \
 	  --enable-c99 --enable-shared --enable-threads=posix \
 	  --enable-__cxa_atexit --disable-nls --enable-languages=c,c++ \
-	  --disable-libstdcxx-pch
+	  --disable-libstdcxx-pch --enable-cloog-backend=isl	
 	err_check "[Error] configure $PackageName failed."
 
 	#The following will prevent GCC from looking in the wrong directories for headers and libraries:
 	cp -v Makefile{,.orig}
 	sed "/^HOST_\(GMP\|PPL\|CLOOG\)\(LIBS\|INC\)/s:-[IL]/\(lib\|include\)::" \
-	    Makefile.orig > Makefile
-	
+    		Makefile.orig > Makefile	
+
 	#make
-	make AS_FOR_TARGET="${AS}" \
-	    LD_FOR_TARGET="${LD}"
+	$MAKE AS_FOR_TARGET="${AS}" LD_FOR_TARGET="${LD}"
 	err_check "[Error] make $PackageName failed."	
 
 	#install
