@@ -5,7 +5,6 @@
 PackageName=ncurses-5.7
 PackageURL=
 
-
 case "${1}" in
 download)
 	check_and_download $PackageURL
@@ -14,8 +13,8 @@ build)
 	#unpack
         unpack_and_enter $PackageName $PackageURL $(basename $0)
 
-	#configure	
-
+	#configure
+	./configure --prefix=/usr		
 	err_check "[Error] configure $PackageName failed."
 
 	#make

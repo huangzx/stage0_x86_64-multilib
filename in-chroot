@@ -2,7 +2,7 @@
 #
 
 #
-# MAKE SURE YOUR ARE IN A CHROOT ENVIRONMENT
+# MAKE SURE YOUR ARE IN A CHROOT ENVIRONMENT.
 #
 
 #Changing Ownership
@@ -76,3 +76,5 @@ mount -vt devpts -o gid=4,mode=620 none /dev/pts
 mount -vt tmpfs none /dev/shm
 
 #Building the CLFS System
+#
+#
